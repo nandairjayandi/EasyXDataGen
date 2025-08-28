@@ -66,13 +66,39 @@ def float_to_hour(hour_float : float) -> time:
 
     return time(hour_int, min_int)
 
-class TimeSheet: # represent an object per working day
-    def __init__(
-            self,
-            emp_id,
-            working_date,
-            working_hours=8
-    ):
+def generate_shift_time(self, morning=True):
+    if morning and self.morning_hours <= 0:
+        return None, None
+    if not morning and self.afternoon_hours <= 0:
+        return None, None
+
+    _hours = self.morning_hours if morning else self.afternoon_hours
+
+    if morning:
+        start_hour = random_start_time(morning=True)
+    else:
+        min_start = 13 # generally the afternoon shift should start at 13
+        if self.end_morning:
+            min_start = max(13, self.end_morning + 0.5)
+        start_hour = random.randint(min_start, 14)
+
+    start_minute = random.choice([0, 15, 30, 45])
+    start_time = datetime.combine(self.working_date, time(start_hour, start_minute))
+
+    end_time = start_time + timedelta(hours=_hours)
+
+    if morning:
+        max_end_time = datetime.combine(self.working_date, time(13, 0))
+        if end_time > max_end_time:
+            if random.random() > 0.05:  # make sure that 95% shift end time around 13
+                max_hours = (max_end_time - start_time).total_seconds() / 3600
+                self.morning_hours = round_quarter(max_hours)
+                self.afternoon_hours = round_quarter(self.working_hours - self.morning_hours)
+                end_time = start_time + timedelta(hours=self.morning_hours)
+
+    return start_time.time(), end_time.time()
+
+
 
 class TimeSheet: # represent an object per working day
     def __init__(self,emp_id,working_date,working_hours=8):
