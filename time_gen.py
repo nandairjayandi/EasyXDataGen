@@ -74,8 +74,11 @@ class TimeSheet: # represent an object per working day
             working_hours=8
     ):
 
+class TimeSheet: # represent an object per working day
+    def __init__(self,emp_id,working_date,working_hours=8):
         self.emp_id = emp_id
         self.working_date = working_date
+        self.working_hours = working_hours
 
         if working_hours > 6:
             morning_hours, afternoon_hours = split_daily_hours(working_hours, two_shift=True)
